@@ -36,6 +36,9 @@ paths:
                 items:
                   $ref: '#/components/schemas/TodoEntry'
         404:
+          description: List id not found
+          content: {}
+        500:
           description: Invalid list id
           content: {}
     delete:
@@ -71,7 +74,7 @@ paths:
               $ref: '#/components/schemas/TodoList'
         required: true
       responses:
-        200:
+        201:
           description: List added
           content:
             application/json:
@@ -80,13 +83,16 @@ paths:
         500:
           description: List could not be added
           content: {}
+        406:
+          description: JSON is not valid
+          content: {}
       x-codegen-request-body-name: body
   /list/{list_id}/entry:
     post:
       tags:
-      - Listenverwaltung
-      summary: Add new list
-      operationId: postEntry
+      - Eintragsverwaltung
+      summary: Add new entry
+      operationId: addEntry
       parameters:
       - name: list_id
         in: path
@@ -94,22 +100,32 @@ paths:
         required: true
         schema:
           type: string
+      requestBody:
+        description: entry object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoEntry'
+        required: true
       responses:
         201:
           description: Entry added
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoEntry'
         406:
-          description: Invalid list id
+          description: JSON is not valid
           content: {}
         500:
-          description: Entry could not be created
+          description: Entry could not be added
           content: {}
   /list/{list_id}/entry/{entry_id}/entry:
     patch:
       tags:
-      - Listenverwaltung
-      summary: Update existing entry
-      operationId: patchEntry
+      - Eintragsverwaltung
+      summary: update entry
+      operationId: updateEntry
       parameters:
       - name: list_id
         in: path
@@ -117,25 +133,39 @@ paths:
         required: true
         schema:
           type: string
+
       - name: entry_id
         in: path
         description: entry id
         required: true
         schema:
           type: string
+  
+      requestBody:
+        description: entry object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoEntry'
+        required: true
       responses:
         200:
-          description: List was updated
-          content: {}
-        404:
-          description: Invalid list id or entry id
-          content: {}
+          description: Entry updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoEntry'
         500:
-          description: List could not be updated
+          description: Entry could not update
           content: {}
+        406:
+          description: JSON is not valid
+          content: {}
+      x-codegen-request-body-name: body
+
     delete:
       tags:
-      - Listenverwaltung
+      - Eintragsverwaltung
       summary: Delete an entry
       operationId: deleteEntry
       parameters:
@@ -145,6 +175,7 @@ paths:
         required: true
         schema:
           type: string
+
       - name: entry_id
         in: path
         description: entry id
@@ -153,14 +184,18 @@ paths:
           type: string
       responses:
         200:
-          description: List was deleted
+          description: Entry was deleted
           content: {}
         404:
-          description: Invalid list id or entry id
+          description: Invalid lentry id
           content: {}
         500:
-          description: List could not be deleted
+          description: server problems
           content: {}
+
+
+
+
 components:
   schemas:
     TodoList:
