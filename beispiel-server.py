@@ -79,6 +79,50 @@ def add_new_list():
     todo_lists.append(new_list)
     return jsonify(new_list), 200
 
+# define endpoint for adding a new entry for list
+@app.route('/list/<list_id>/entry', methods=['POST'])
+def add_new_entry(list_id):
+    # make JSON from POST data (even if content type is not set correctly)
+    new_entry = request.get_json(force=True)
+    print('Got new entry to be added: {}'.format(new_entry))
+    # create ids for new entries, save it and return the entries with description, id, list-id, name
+    new_entry['id'] = str(uuid.uuid4())
+    new_entry['list'] = list_id
+    todos.append(new_entry)
+    return jsonify(new_entry), 200
+
+# define endpoint for updating entry in list
+@app.route('/list/<list_id>/entry/<entry_id>', methods=['PATCH','DELETE'])
+def handle_entry(list_id, entry_id):
+    entry_item = None
+    # find todo list entry depending on given entry id
+    for entry in todos:
+        if entry['id'] == entry_id:    
+            if entry['list'] == list_id:
+                entry_item = entry
+                break
+    # if json is invalid, return status code 406
+    if not entry_item:
+        abort(406)
+
+    if request.method == 'PATCH':
+        # update entry
+        update_entry = request.get_json(force=True)
+        # entry id and list need to stay the same
+        update_entry['id'] = entry_item['id']
+        update_entry['list'] = entry_item['list']
+        # remove old entry and add updated entry
+        todos.remove(entry_item)
+        todos.append(update_entry)
+        return jsonify(update_entry), 201
+    elif request.method == 'DELETE':
+        # delete entry
+        todos.remove(entry_item)
+        return '', 200
+
+    return '', 404
+
+
 
 # define endpoint for getting all lists
 @app.route('/lists', methods=['GET'])
